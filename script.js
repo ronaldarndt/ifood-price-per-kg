@@ -3,8 +3,8 @@
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  try to take over the world!
-// @author       Ronald Arndt
-// @match        https://www.ifood.com.br/delivery/*
+// @author       You
+// @match        https://www.ifood.com.br/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=google.com
 // @grant        none
 // ==/UserScript==
@@ -13,6 +13,10 @@
   'use strict';
 
   function run() {
+      if (!window.location.href.includes('/delivery/')) {
+          return;
+      }
+
     const baseElement = document.createElement('p');
     baseElement.style.color = '#d73c3c';
     baseElement.style.margin = 0;
@@ -25,7 +29,7 @@
         continue;
       }
 
-      const matches = prod.textContent.match(/\w+ ([\d]+)g/);
+      const matches = prod.textContent.match(/.+ ([\d]+)g/);
 
       if (!matches || matches.length < 2) {
         continue;
