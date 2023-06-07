@@ -25,36 +25,40 @@
     outer: for (const prod of document.querySelectorAll('.product-card__details')) {
       const sibling = prod.nextSibling;
 
-      if (sibling.textContent.includes('cada')) {
-        continue;
-      }
-
-      const matches = prod.textContent.match(/.+ ([\d]+)g/);
+      const matches = prod.textContent.match(/.+ ([\d,]+)(g|ml|kg|l)/);
 
       if (!matches || matches.length < 2) {
         continue;
       }
 
-      const val = Number(matches[1]);
+      const unit = matches[2];
+      const isWeight = unit === 'g' || unit === 'kg'
+      const isNotFraction = unit === 'kg' || unit === 'l';
 
-      if (val % 1000 === 0) {
+      let val = Number(matches[1].replace(',', '.'));
+
+      if (isNotFraction) {
+        val = val * 1000;
+      }
+
+      if (val === 1000) {
         continue;
       }
 
-      const priceText = sibling.textContent.split(' ')[1].split('-')[0].replace(',', '.');
+      const priceText = sibling.textContent.split(' ')[1].split('-')[0].replace(',', '.').match(/([\d\.]+)/)[0];
       const price = Number(priceText);
 
       const perKgPrice = (price * (1000 / val)).toFixed(2);
 
       const element = baseElement.cloneNode();
-      element.textContent = perKgPrice.toString() + ' por quilo';
+      element.textContent = perKgPrice.toString() + (isWeight ? ' por quilo' : ' por litro');
 
       const target = sibling.childNodes[0];
 
       const testTarget = target.childNodes.length > 1 ? target : sibling;
 
       for (const child of testTarget.childNodes) {
-        if (child.textContent.includes(' por quilo')) continue outer;
+        if (child.textContent.includes(' por quilo') || child.textContent.includes(' por litro')) continue outer;
       }
 
       if (target.childNodes.length > 1) {
